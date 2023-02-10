@@ -19,8 +19,8 @@
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
-      let inviteCode = e.target.invite_link;
-      window.location.href = `./index.html?room=${inviteCode}`;
+      let inviteCode = e.target.invite_link.value;
+      window.location = `index.html?room=${inviteCode}`;
     });
   </script>
 </html>

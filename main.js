@@ -6,6 +6,14 @@ let uid = Math.floor(Math.random() * 10000).toString(); // change user id from d
 let client;
 let channel;
 
+let quearyString = window.location.search;
+let urlParams = new URLSearchParams(quearyString);
+let roomId = urlParams.get("room");
+
+if (!roomId) {
+  window.location = "lobby.html";
+}
+
 let localStream;
 let remoteStream;
 let peerConnection;
@@ -22,8 +30,7 @@ let init = async () => {
   client = await AgoraRTM.createInstance(APP_ID);
   await client.login({ uid, token });
 
-  // index.html?room=2235673
-  channel = await client.createChannel("main");
+  channel = await client.createChannel(roomId);
   await channel.join();
 
   channel.on("MemberJoined", handleUserJoin);
@@ -33,8 +40,8 @@ let init = async () => {
 
   localStream = await navigator.mediaDevices.getUserMedia({
     video: true,
-    audio: false,
-  }); // change audio to true if you want to send audio
+    audio: true,
+  });
   document.getElementById("user-1").srcObject = localStream;
 };
 
@@ -141,6 +148,36 @@ let leaveChannel = async () => {
   await client.logout();
 };
 
+let toggleCamera = async () => {
+  var videoTrack = localStream.getVideoTracks()[0];
+  if (videoTrack.enabled) {
+    videoTrack.enabled = false;
+    document.getElementById("camera-btn").style.backgroundColor = "red";
+    // chnage camera toggle color
+  } else {
+    videoTrack.enabled = true;
+    document.getElementById("camera-btn").style.backgroundColor = "#a4a4a4";
+    // chnage camera toggle color
+  }
+};
+
+let toggleMic = async () => {
+  var audioTrack = localStream.getAudioTracks()[0];
+
+  if (audioTrack.enabled) {
+    audioTrack.enabled = false;
+    document.getElementById("mic-btn").style.backgroundColor = "red";
+    // chnage camera toggle color
+  } else {
+    audioTrack.enabled = true;
+    document.getElementById("mic-btn").style.backgroundColor = "#a4a4a4";
+    // chnage camera toggle color
+  }
+};
+
 window.addEventListener("beforeunload", leaveChannel);
+
+document.getElementById("camera-btn").addEventListener("click", toggleCamera);
+document.getElementById("mic-btn").addEventListener("click", toggleMic);
 
 init();
